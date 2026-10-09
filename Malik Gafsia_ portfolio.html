@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Malik Gafsia: web interfaces and video edits</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;800&family=Public+Sans:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#EDF1F5;--surface:#FFFFFF;--ink:#15202B;--muted:#55657A;--line:#C9D3DE;
+  --ui:#2B45E6;--edit:#0E7C7B;--on-clip:#FFFFFF;--head:#E0A100;
+  --display:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;
+  --body:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){--bg:#101923;--surface:#17232F;--ink:#E8EEF4;--muted:#9DB0C3;--line:#2C3C4C;--ui:#8FA2FF;--edit:#4FC3C0;--on-clip:#101923;--head:#FFC83D}
+}
+:root[data-theme="dark"]{--bg:#101923;--surface:#17232F;--ink:#E8EEF4;--muted:#9DB0C3;--line:#2C3C4C;--ui:#8FA2FF;--edit:#4FC3C0;--on-clip:#101923;--head:#FFC83D}
+html{scroll-padding-top:env(safe-area-inset-top,0px);scroll-behavior:smooth}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);line-height:1.6;font-size:1.0625rem}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
+.wrap{max-width:62rem;margin:0 auto;padding:0 1.25rem}
+header.top{display:flex;justify-content:space-between;align-items:center;padding:1.25rem 0}
+header.top strong{font-family:var(--display);font-weight:800}
+header.top nav{display:flex;gap:1.25rem}
+header.top nav a{text-decoration:none;color:var(--muted)}
+header.top nav a:hover{color:var(--ink);text-decoration:underline}
+.hero{padding:3rem 0 2rem}
+.hero h1{font-family:var(--display);font-weight:800;font-size:clamp(3rem,10vw,7rem);line-height:.95;letter-spacing:-.03em;margin:0 0 1.25rem}
+.hero p{max-width:34rem;font-size:1.25rem;color:var(--muted);margin:0}
+h2{font-family:var(--display);font-weight:800;font-size:1.75rem;letter-spacing:-.01em;margin:0 0 .5rem}
+.intro{color:var(--muted);max-width:36rem;margin:0 0 1.5rem}
+section{padding:2.5rem 0}
+.scroll{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:6px}
+.stage{min-width:40rem;padding:1.25rem 1.25rem 1.25rem}
+.lanes{position:relative;margin-left:6.5rem}
+.ruler{height:1.25rem;border-bottom:1px solid var(--line);margin-bottom:.75rem;background:repeating-linear-gradient(to right,var(--line) 0 1px,transparent 1px 10%) bottom/100% 6px no-repeat}
+.lane{position:relative;height:3.5rem;margin-bottom:.75rem;background:repeating-linear-gradient(to right,transparent 0 calc(10% - 1px),var(--line) calc(10% - 1px) 10%);border-radius:4px}
+.lane .name{position:absolute;left:-6.5rem;top:0;width:6rem;height:100%;display:flex;align-items:center;font-weight:600;font-size:.9rem}
+.clip{position:absolute;top:.25rem;height:3rem;border:0;border-radius:4px;color:var(--on-clip);font:600 .85rem/1.2 var(--body);text-align:left;padding:0 .75rem;cursor:pointer;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.clip.ui{background:var(--ui)}
+.clip.ed{background:var(--edit)}
+.clip[aria-pressed="true"]{outline:3px solid var(--ink);outline-offset:2px}
+.playhead{position:absolute;top:0;bottom:0;width:2px;background:var(--head);left:2%;transition:left .45s ease;pointer-events:none;z-index:2}
+.playhead::before{content:"";position:absolute;top:0;left:-6px;border:7px solid transparent;border-top-color:var(--head);border-bottom:0}
+.preview{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:1.5rem;margin-top:1.5rem;align-items:start}
+.frame{aspect-ratio:16/9;border:2px dashed var(--line);border-radius:6px;display:flex;align-items:center;justify-content:center;text-align:center;padding:1rem;color:var(--muted);background:var(--surface)}
+.preview h3{font-family:var(--display);font-size:1.5rem;margin:0 0 .25rem}
+.preview .meta{color:var(--muted);margin:0 0 .75rem;font-size:.95rem}
+.preview p{margin:0 0 .75rem;max-width:34rem}
+.cols{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:2rem}
+.cols h3{font-family:var(--display);font-size:1.25rem;margin:0 0 .5rem}
+.cols ul{padding-left:1.1rem;margin:0}
+.cols li{margin-bottom:.35rem}
+.btn{display:inline-block;background:var(--ink);color:var(--bg);padding:.8rem 1.4rem;border-radius:4px;font-weight:600;text-decoration:none}
+.btn:hover{opacity:.88}
+footer{padding:2rem 0 3rem;color:var(--muted);font-size:.9rem;border-top:1px solid var(--line)}
+@media (max-width:42rem){.preview,.cols{grid-template-columns:1fr}.hero{padding-top:1.5rem}}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.playhead{transition:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <strong>Malik Gafsia</strong>
+    <nav aria-label="Main"><a href="#work">Work</a><a href="#services">Services</a><a href="#contact">Contact</a></nav>
+  </header>
+
+  <main>
+    <div class="hero">
+      <h1>Malik Gafsia</h1>
+      <p>I build web interfaces and edit video. Pick a clip below to see the project.</p>
+    </div>
+
+    <section id="work" aria-labelledby="work-h">
+      <h2 id="work-h">Work</h2>
+      <p class="intro">Blue clips are interface projects. Teal clips are video edits.</p>
+      <div class="scroll">
+        <div class="stage">
+          <div class="lanes">
+            <div class="ruler" aria-hidden="true"></div>
+            <div class="lane" id="lane-ui"><span class="name">Interfaces</span></div>
+            <div class="lane" id="lane-ed"><span class="name">Video edits</span></div>
+            <div class="playhead" id="playhead" aria-hidden="true"></div>
+          </div>
+        </div>
+      </div>
+      <div class="preview" aria-live="polite">
+        <div class="frame" id="frame"></div>
+        <div>
+          <h3 id="p-title"></h3>
+          <p class="meta" id="p-meta"></p>
+          <p id="p-desc"></p>
+          <p class="meta">This is a concept project. Replace this slot with your own screenshots or video.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="services" aria-labelledby="serv-h">
+      <h2 id="serv-h">Services</h2>
+      <div class="cols">
+        <div>
+          <h3>Web interfaces</h3>
+          <ul>
+            <li>Responsive pages that work on phones first</li>
+            <li>Clean layouts, readable text, fast loading</li>
+            <li>Landing pages, small business sites, dashboards</li>
+            <li>Python tooling when a task needs automating</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Video editing</h3>
+          <ul>
+            <li>Short-form reels and clips for social media</li>
+            <li>Promo videos and YouTube edits</li>
+            <li>Cuts, captions, sound cleanup, and color</li>
+            <li>Exports sized for each platform</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="about" aria-labelledby="about-h">
+      <h2 id="about-h">About</h2>
+      <p class="intro">I'm Malik, a freelancer who builds web interfaces and edits video. I also write Python, and i manage social media content, so I can automate the repetitive parts of both jobs.</p>
+    </section>
+
+    <section id="contact" aria-labelledby="contact-h">
+      <h2 id="contact-h">Contact</h2>
+      <p class="intro">Tell me what you need built or edited and when you need it.</p>
+      <a class="btn" href="mailto:malikgafsia980@gmail.com">Email Malik</a>
+    </section>
+  </main>
+
+  <footer>&copy; 2026 Malik Gafsia</footer>
+</div>
+
+<script>
+var clips=[
+ {id:"u1",lane:"ui",l:2,w:30,t:"Cafe website redesign",m:"Concept. HTML, CSS, JavaScript",d:"A mobile-first rebuild of a local cafe's site with the menu, opening hours, and a one-tap directions button."},
+ {id:"u2",lane:"ui",l:36,w:26,t:"Booking flow",m:"Concept. UI design and front-end",d:"A three-step appointment booking screen that is easy to finish on a phone."},
+ {id:"u3",lane:"ui",l:66,w:30,t:"Product page",m:"Concept. HTML, CSS, JavaScript",d:"A small shop's product page with clear photos, price, and a visible buy button."},
+ {id:"e1",lane:"ed",l:8,w:22,t:"30-second promo",m:"Concept. Video edit",d:"A short brand promo with tight cuts, captions, and clean audio."},
+ {id:"e2",lane:"ed",l:34,w:34,t:"Reel pack",m:"Concept. Short-form edits",d:"Three vertical reels cut from one longer video, each sized for social platforms."},
+ {id:"e3",lane:"ed",l:72,w:24,t:"YouTube edit",m:"Concept. Long-form edit",d:"A talking-head video with jump cuts, titles, and sound cleanup."}
+];
+var ph=document.getElementById("playhead");
+function show(c){
+  document.getElementById("p-title").textContent=c.t;
+  document.getElementById("p-meta").textContent=c.m;
+  document.getElementById("p-desc").textContent=c.d;
+  document.getElementById("frame").textContent=(c.lane==="ui"?"Screenshot":"Video")+" placeholder: "+c.t;
+  ph.style.left=c.l+"%";
+  var all=document.querySelectorAll(".clip");
+  for(var i=0;i<all.length;i++){all[i].setAttribute("aria-pressed",all[i].dataset.id===c.id?"true":"false");}
+}
+clips.forEach(function(c){
+  var b=document.createElement("button");
+  b.type="button";b.className="clip "+(c.lane==="ui"?"ui":"ed");
+  b.style.left=c.l+"%";b.style.width=c.w+"%";
+  b.textContent=c.t;b.dataset.id=c.id;b.setAttribute("aria-pressed","false");
+  b.addEventListener("click",function(){show(c);});
+  document.getElementById(c.lane==="ui"?"lane-ui":"lane-ed").appendChild(b);
+});
+show(clips[0]);
+</script>
+</body>
+</html>
